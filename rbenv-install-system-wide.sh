@@ -5,12 +5,32 @@
 
 # Installs rbenv system wide on CentOS 5/6/7, also allows single user installs.
 
+# system group to create
+# all members of this group will be able to install new ruby versions and gems
+GROUP="rbenv"
+
 # Install pre-requirements
-yum install -y git-core zlib zlib-devel gcc-c++ patch readline readline-devel libyaml-devel libffi-devel openssl-devel make bzip2 autoconf automake libtool bison curl sqlite-devel
+yum install -y git-core \
+  zlib zlib-devel \
+  gcc-c++ \
+  patch \
+  readline \
+  readline-devel \
+  libyaml-devel \
+  libffi-devel \
+  openssl-devel \
+  make \
+  bzip2 \
+  autoconf \
+  automake \
+  libtool \
+  bison \
+  curl \
+  sqlite-devel
 
 # Check if Git is installed
 hash git 2>&- || { 
-  echo >&2 "Error: Git not found. Hint: Try installing the RPMForge or EPEL package repository.";
+  echo >&2 "Error: 'git' command not found";
   exit 1;
 }
 
@@ -55,8 +75,12 @@ pushd /tmp
   ./install.sh
 popd
 
-chown -R root:wheel /usr/local/rbenv
-chmod -R g+w /usr/local/rbenv
+[ $(getent group "${GROUP}") ] || groupadd "${GROUP}"
+
+mkdir /usr/local/rbenv/shims /usr/local/rbenv/versions
+
+chown -R root:${GROUP} /usr/local/rbenv/shims /usr/local/rbenv/versions
+chmod -R g+w /usr/local/rbenv/shims /usr/local/rbenv/versions
 
 echo '---------------------------------'
 echo '    rbenv installed system wide to /usr/local/rbenv'
